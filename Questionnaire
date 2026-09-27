@@ -41,3 +41,6 @@ def display_questions():
 
 if __name__ == "__main__":
     display_questions()
+
+if __name__ == "__main__":
+    display_questions()
