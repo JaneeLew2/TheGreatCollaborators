@@ -80,3 +80,377 @@
   }
   .sheet::before, .sheet::after,
   .sheet .reg-br::before, .sheet .reg-bl::before {
+    content: ""; position: absolute; width: 18px; height: 18px;
+    border: 1.5px solid var(--amber); opacity: 0.85;
+  }
+  .sheet::before { top: -1.5px; left: -1.5px; border-right: none; border-bottom: none; }
+  .sheet::after { top: -1.5px; right: -1.5px; border-left: none; border-bottom: none; }
+
+  .sheet-heading {
+    display: flex; align-items: baseline; gap: 0.9rem; margin-bottom: 0.4rem;
+  }
+  .sheet-num {
+    font-family: "IBM Plex Mono", monospace; font-size: 0.85rem; color: var(--amber); font-weight: 600;
+  }
+  .sheet-heading h2 {
+    font-family: "IBM Plex Sans Condensed", sans-serif; font-size: 1.7rem; margin: 0; color: #fff; font-weight: 700;
+  }
+  .sheet-desc { color: var(--linework-dim); max-width: 72ch; font-size: 0.94rem; margin: 0.3rem 0 1.8rem; }
+
+  .diagram-sheet {
+    background: var(--paper); border: 1.5px solid var(--paper-edge); padding: 1.5rem;
+    overflow-x: auto; color: var(--paper-ink);
+  }
+  pre.mermaid { margin: 0; }
+  .diagram-sheet svg text,
+  .diagram-sheet svg .nodeLabel,
+  .diagram-sheet svg .edgeLabel,
+  .diagram-sheet svg foreignObject div,
+  .diagram-sheet svg foreignObject span,
+  .diagram-sheet svg tspan {
+    color: #1B2A33 !important;
+    fill: #1B2A33 !important;
+  }
+  .scale-note {
+    font-family: "IBM Plex Mono", monospace; font-size: 0.7rem; color: var(--linework-dim);
+    margin-top: 0.6rem; display: flex; justify-content: space-between;
+  }
+
+  .figs-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 2rem;
+  }
+
+  .figure { display: flex; flex-direction: column; }
+  .fig-caption {
+    font-family: "IBM Plex Mono", monospace; font-size: 0.72rem; color: var(--linework-dim);
+    margin-bottom: 0.5rem;
+  }
+  .fig-caption b { color: var(--amber); }
+
+  .paper-card {
+    background: var(--paper); color: var(--paper-ink); border: 1.5px solid var(--paper-edge);
+    padding: 1.1rem 1.2rem 1.3rem; flex: 1;
+  }
+  .pc-header {
+    display: flex; justify-content: space-between; align-items: center;
+    border-bottom: 2px solid var(--paper-ink); padding-bottom: 0.5rem; margin-bottom: 0.9rem;
+    font-family: "IBM Plex Mono", monospace; font-size: 0.72rem; font-weight: 600;
+  }
+
+  .form-line { margin-bottom: 0.9rem; }
+  .form-line label {
+    display: block; font-size: 0.78rem; margin-bottom: 0.25rem; color: var(--paper-ink);
+  }
+  .form-line .blank {
+    border-bottom: 1.3px solid var(--paper-ink); height: 1.1rem;
+  }
+  .form-line .blank.short { width: 55%; }
+
+  .choice-row { font-family: "IBM Plex Mono", monospace; font-size: 0.76rem; margin: 0.35rem 0; }
+  .choice-row .box { margin-right: 0.4rem; }
+
+  .btn-field {
+    display: inline-block; font-family: "IBM Plex Mono", monospace; font-size: 0.72rem; font-weight: 600;
+    border: 1.3px solid var(--paper-ink); padding: 0.4rem 0.7rem; margin: 0.9rem 0.5rem 0 0;
+  }
+  .btn-field.primary { background: var(--paper-ink); color: var(--paper); }
+
+  .stamp {
+    display: inline-block; border: 2.5px solid var(--amber); color: var(--amber);
+    font-family: "IBM Plex Mono", monospace; font-weight: 700; font-size: 0.85rem;
+    padding: 0.3rem 0.7rem; transform: rotate(-6deg); letter-spacing: 1px;
+  }
+
+  .tag {
+    display: inline-block; font-family: "IBM Plex Mono", monospace; font-size: 0.68rem; font-weight: 600;
+    border: 1.3px solid currentColor; padding: 0.1rem 0.4rem;
+  }
+  .tag.high { color: #A6432E; }
+  .tag.med { color: #92661A; }
+  .tag.low { color: #3D6B3F; }
+  .tag.neutral { color: var(--paper-ink); }
+
+  table.rec-table { width: 100%; border-collapse: collapse; font-size: 0.75rem; margin-top: 0.3rem; }
+  table.rec-table th {
+    text-align: left; font-family: "IBM Plex Mono", monospace; font-size: 0.66rem; font-weight: 600;
+    border-bottom: 2px solid var(--paper-ink); padding: 0.3rem 0.4rem 0.4rem;
+  }
+  table.rec-table td { border-bottom: 1px solid var(--paper-edge); padding: 0.4rem; }
+
+  .field-note {
+    font-size: 0.76rem; line-height: 1.4; margin: 0.2rem 0 0.9rem; padding-left: 0.8rem;
+    border-left: 2px solid var(--amber);
+  }
+
+  .steps-list { margin-top: 0.6rem; }
+  .step-row {
+    display: flex; align-items: center; gap: 0.5rem; font-family: "IBM Plex Mono", monospace;
+    font-size: 0.74rem; margin-bottom: 0.4rem;
+  }
+  .step-mark { width: 1rem; text-align: center; }
+
+  footer {
+    text-align: center; color: var(--linework-dim); font-family: "IBM Plex Mono", monospace;
+    font-size: 0.72rem; padding: 2.5rem 1rem 3rem; letter-spacing: 0.5px;
+  }
+</style>
+</head>
+<body>
+
+<div class="titleblock">
+  <div class="titleblock-grid">
+    <div class="tb-cell title-main">
+      <span class="tb-val">Healthcare Data Use Case Assessment &amp; Protection Platform</span>
+      <span class="tb-sub">UI / UX ARCHITECTURE SET</span>
+    </div>
+    <div class="tb-cell">
+      <span class="tb-key">PROJECT TEAM</span>
+      <span class="tb-val" style="font-size:0.9rem;">The Great Collaborators</span>
+    </div>
+    <div class="tb-cell">
+      <span class="tb-key">MILESTONE</span>
+      <span class="tb-val" style="font-size:0.9rem;">02</span>
+    </div>
+    <div class="tb-cell tb-row-bottom">
+      <span class="tb-key">DATE</span>
+      <span class="tb-val" style="font-size:0.9rem;">Sep 2026</span>
+    </div>
+    <div class="tb-cell tb-row-bottom">
+      <span class="tb-key">SHEETS</span>
+      <span class="tb-val" style="font-size:0.9rem;">A-100 &ndash; A-104</span>
+    </div>
+  </div>
+</div>
+
+<nav class="sheets">
+  <a href="#a100"><span>A-100</span> · Flow</a>
+  <a href="#a101"><span>A-101</span> · Researcher</a>
+  <a href="#a102"><span>A-102</span> · Steward</a>
+  <a href="#a103"><span>A-103</span> · Compliance</a>
+  <a href="#a104"><span>A-104</span> · Admin</a>
+</nav>
+
+<main>
+
+  <section class="sheet" id="a100">
+    <div class="sheet-heading"><span class="sheet-num">A-100</span><h2>System Flow Diagram</h2></div>
+    <p class="sheet-desc">How the four roles move through the platform, and where their paths cross: a researcher's submission routes into the steward's review, which routes back into the researcher's recommendations.</p>
+    <div class="diagram-sheet">
+      <pre class="mermaid">
+%%{init: {'theme':'base', 'themeVariables': { 'primaryColor':'#F5F1E4','primaryBorderColor':'#1B2A33','primaryTextColor':'#1B2A33','secondaryTextColor':'#1B2A33','tertiaryTextColor':'#1B2A33','textColor':'#1B2A33','nodeTextColor':'#1B2A33','lineColor':'#1B2A33','edgeLabelBackground':'#F5F1E4','fontFamily':'IBM Plex Mono, monospace','fontSize':'13px'}}}%%
+graph TD
+    A["LOGIN"] --> B{"SELECT ROLE"}
+
+    B --> R1["RESEARCHER:<br/>START / RESUME ASSESSMENT"]
+    R1 --> R2["GUIDED QUESTIONNAIRE<br/>(6 CATEGORIES)"]
+    R2 --> R3["SUBMISSION CONFIRMATION"]
+    R3 --> R4["VIEW RISK FLAGS<br/>&amp; RECOMMENDATIONS"]
+    R4 --> R5["PROTECTION WORKFLOW TRACKER"]
+
+    B --> S1["DATA STEWARD:<br/>SUBMISSIONS DASHBOARD"]
+    S1 --> S2["SUBMISSION DETAIL<br/>&amp; RISK SUMMARY"]
+    S2 --> S3["FLAG FOR FOLLOW-UP"]
+    S2 --> S4["APPROVE / MODIFY / REJECT<br/>PROTECTIONS"]
+
+    B --> C1["COMPLIANCE OFFICER:<br/>SEARCHABLE REPOSITORY"]
+    C1 --> C2["RISK SEVERITY QUEUE"]
+    C2 --> C3["PROTECTION AUDIT RECORDS"]
+
+    B --> G1["GOVERNANCE ADMIN:<br/>RISK RULE CONFIGURATION"]
+
+    R2 -.auto-analysis.-> S2
+    G1 -.rule updates.-> R2
+    S4 -.approved conditions.-> R4
+    S3 -.clarification needed.-> R4
+      </pre>
+      <div class="scale-note"><span>SCALE: NOT TO SCALE</span><span>REV. A</span></div>
+    </div>
+  </section>
+
+  <section class="sheet" id="a101">
+    <div class="sheet-heading"><span class="sheet-num">A-101</span><h2>Researcher</h2></div>
+    <p class="sheet-desc">Submits a data use request, then sees what risk it raised and what to do about it. Epics 1 &amp; 3.</p>
+    <div class="figs-grid">
+
+      <div class="figure">
+        <div class="fig-caption">FIG. 1.1 &mdash; <b>Guided Questionnaire, Step 2 of 6</b></div>
+        <div class="paper-card">
+          <div class="pc-header"><span>DATA USE CASE ASSESSMENT</span><span>02 / 06</span></div>
+          <div class="form-line">
+            <label>What is the sensitivity level of the data involved?</label>
+            <div class="choice-row"><span class="box">[ ]</span>Full PHI &nbsp; <span class="box">[X]</span>Limited data set &nbsp; <span class="box">[ ]</span>De-identified</div>
+          </div>
+          <div class="form-line">
+            <label>Does the dataset include any special categories of health information?</label>
+            <div class="blank"></div>
+          </div>
+          <button class="btn-field">SAVE &amp; EXIT</button>
+          <button class="btn-field primary">NEXT</button>
+        </div>
+      </div>
+
+      <div class="figure">
+        <div class="fig-caption">FIG. 1.2 &mdash; <b>Submission Confirmation</b></div>
+        <div class="paper-card" style="text-align:center;">
+          <div class="stamp">SUBMITTED</div>
+          <div class="form-line" style="margin-top:1.2rem; text-align:left;">
+            <label>Assessment ID</label>
+            <div class="blank short">#A1F9-22</div>
+          </div>
+          <div class="form-line" style="text-align:left;">
+            <label>Status</label>
+            <span class="tag med">UNDER REVIEW</span>
+          </div>
+          <button class="btn-field primary">VIEW MY SUBMISSIONS</button>
+        </div>
+      </div>
+
+      <div class="figure">
+        <div class="fig-caption">FIG. 1.3 &mdash; <b>Risk Flags &amp; Recommendations</b></div>
+        <div class="paper-card">
+          <div class="pc-header"><span>ASSESSMENT #A1F9-22</span><span class="tag med">MEDIUM RISK</span></div>
+          <div class="form-line"><label>Why this was flagged</label></div>
+          <div class="field-note">Re-identification concerns &mdash; cohort size combined with requested variables could allow individuals to be identified.</div>
+          <table class="rec-table">
+            <tr><th>Recommended Protection</th><th>Rationale</th></tr>
+            <tr><td>De-identification (Safe Harbor)</td><td>Removes direct identifiers</td></tr>
+            <tr><td>Data minimization</td><td>Limits fields to what's needed</td></tr>
+          </table>
+          <div class="steps-list">
+            <div class="step-row"><span class="step-mark">■</span> Request de-identified dataset &mdash; COMPLETE</div>
+            <div class="step-row"><span class="step-mark">▶</span> Apply for access &mdash; IN PROGRESS</div>
+            <div class="step-row"><span class="step-mark">□</span> Sign data use agreement &mdash; NOT STARTED</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <section class="sheet" id="a102">
+    <div class="sheet-heading"><span class="sheet-num">A-102</span><h2>Data Steward</h2></div>
+    <p class="sheet-desc">Reviews incoming submissions, reads the risk explanation, and decides on protections. Epics 1, 2 &amp; 3.</p>
+    <div class="figs-grid">
+
+      <div class="figure">
+        <div class="fig-caption">FIG. 2.1 &mdash; <b>Submissions Dashboard</b></div>
+        <div class="paper-card">
+          <div class="pc-header"><span>DATA STEWARD PORTAL</span><span>3 OPEN</span></div>
+          <table class="rec-table">
+            <tr><th>Submitter</th><th>Date</th><th>Severity</th><th>Status</th></tr>
+            <tr><td>J. Alvarez</td><td>09/24</td><td><span class="tag high">HIGH</span></td><td>Flagged</td></tr>
+            <tr><td>M. Chen</td><td>09/23</td><td><span class="tag med">MED</span></td><td>Reviewing</td></tr>
+            <tr><td>R. Patel</td><td>09/22</td><td><span class="tag low">LOW</span></td><td>Cleared</td></tr>
+          </table>
+        </div>
+      </div>
+
+      <div class="figure">
+        <div class="fig-caption">FIG. 2.2 &mdash; <b>Submission Detail &amp; Risk Summary</b></div>
+        <div class="paper-card">
+          <div class="pc-header"><span>J. ALVAREZ</span><span>SUBMITTED 09/24</span></div>
+          <div class="form-line"><label>Questionnaire summary</label><div class="blank"></div><div class="blank" style="margin-top:0.4rem;"></div></div>
+          <div class="field-note">Cohort size is small enough that, combined with requested variables, re-identification is plausible.</div>
+          <button class="btn-field">FLAG FOR FOLLOW-UP</button>
+          <button class="btn-field primary">REVIEW PROTECTIONS</button>
+        </div>
+      </div>
+
+      <div class="figure">
+        <div class="fig-caption">FIG. 2.3 &mdash; <b>Approve / Modify Protections</b></div>
+        <div class="paper-card">
+          <div class="pc-header"><span>RECOMMENDED PROTECTIONS</span></div>
+          <table class="rec-table">
+            <tr><th>Mechanism</th><th>Status</th></tr>
+            <tr><td>De-identification (Safe Harbor)</td><td class="tag neutral">SUGGESTED</td></tr>
+          </table>
+          <button class="btn-field primary">APPROVE</button>
+          <button class="btn-field">MODIFY</button>
+          <button class="btn-field">REJECT</button>
+          <div class="form-line" style="margin-top:0.9rem;"><label>Approver note</label><div class="blank"></div></div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <section class="sheet" id="a103">
+    <div class="sheet-heading"><span class="sheet-num">A-103</span><h2>Compliance Officer</h2></div>
+    <p class="sheet-desc">Audits historical submissions, prioritizes high-risk cases, and keeps exportable protection records. Epics 1, 2 &amp; 3.</p>
+    <div class="figs-grid">
+
+      <div class="figure">
+        <div class="fig-caption">FIG. 3.1 &mdash; <b>Searchable Repository</b></div>
+        <div class="paper-card">
+          <div class="pc-header"><span>ASSESSMENT REPOSITORY</span></div>
+          <div class="form-line"><label>Search by submitter, date, or keyword</label><div class="blank"></div></div>
+          <table class="rec-table">
+            <tr><th>ID</th><th>Submitter</th><th>Date</th><th>Severity</th></tr>
+            <tr><td>A1F9</td><td>J. Alvarez</td><td>09/24</td><td><span class="tag high">HIGH</span></td></tr>
+            <tr><td>B2K3</td><td>M. Chen</td><td>09/23</td><td><span class="tag med">MED</span></td></tr>
+          </table>
+        </div>
+      </div>
+
+      <div class="figure">
+        <div class="fig-caption">FIG. 3.2 &mdash; <b>Risk Severity Queue</b></div>
+        <div class="paper-card">
+          <div class="pc-header"><span>EXPEDITED REVIEW QUEUE</span></div>
+          <table class="rec-table">
+            <tr><th>Risk</th><th>Severity</th></tr>
+            <tr><td>Cross-border data movement</td><td><span class="tag high">HIGH</span></td></tr>
+            <tr><td>Re-identification risk</td><td><span class="tag med">MED</span></td></tr>
+          </table>
+        </div>
+      </div>
+
+      <div class="figure">
+        <div class="fig-caption">FIG. 3.3 &mdash; <b>Protection Audit Record</b></div>
+        <div class="paper-card">
+          <div class="pc-header"><span>AUDIT RECORD &mdash; A1F9</span></div>
+          <div class="form-line"><label>Mechanism applied</label><div class="blank short"></div></div>
+          <div class="form-line"><label>Approver identity</label><div class="blank short"></div></div>
+          <div class="form-line"><label>Date approved</label><div class="blank short"></div></div>
+          <button class="btn-field primary">EXPORT FOR AUDIT</button>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <section class="sheet" id="a104">
+    <div class="sheet-heading"><span class="sheet-num">A-104</span><h2>Governance Administrator</h2></div>
+    <p class="sheet-desc">Maintains the rules the risk analyzer uses, without needing a developer. Epic 2.</p>
+    <div class="figs-grid">
+
+      <div class="figure">
+        <div class="fig-caption">FIG. 4.1 &mdash; <b>Risk Rule Configuration</b></div>
+        <div class="paper-card">
+          <div class="pc-header"><span>RISK RULE SETTINGS</span></div>
+          <table class="rec-table">
+            <tr><th>Rule</th><th>Category</th><th>Severity</th><th>Status</th></tr>
+            <tr><td>Small cohort + quasi-ID</td><td>Re-ID</td><td><span class="tag high">HIGH</span></td><td>Active</td></tr>
+            <tr><td>Cross-org transfer</td><td>Movement</td><td><span class="tag med">MED</span></td><td>Active</td></tr>
+          </table>
+          <button class="btn-field primary">+ ADD NEW RULE</button>
+        </div>
+      </div>
+
+      <div class="figure">
+        <div class="fig-caption">FIG. 4.2 &mdash; <b>Rule Change Log</b></div>
+        <div class="paper-card">
+          <div class="pc-header"><span>CHANGE HISTORY</span></div>
+          <div class="field-note">Updated: Small cohort + quasi-ID &mdash; admin.jlewis, 09/24</div>
+          <div class="field-note">Added: Cross-org transfer &mdash; admin.jlewis, 09/20</div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+</main>
+
+<footer>THE GREAT COLLABORATORS — MILESTONE 02 — DRAWING SET A-100 THROUGH A-104</footer>
+
+</body>
+</html>
