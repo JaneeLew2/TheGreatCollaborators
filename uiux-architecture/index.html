@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>UI/UX Architecture — Healthcare Data Use Case Platform</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Sans+Condensed:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #0F2942;
+    --navy-deep: #0A1E30;
+    --ink-line: rgba(184, 214, 234, 0.14);
+    --ink-line-major: rgba(184, 214, 234, 0.28);
+    --linework: #B9D6EA;
+    --linework-dim: #7FA8C9;
+    --paper: #F5F1E4;
+    --paper-ink: #1B2A33;
+    --paper-edge: #C9C0A6;
+    --amber: #D98E2B;
+    box-sizing: border-box;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  @media (prefers-color-scheme: light) { :root { --navy: #0F2942; } }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; scroll-padding-top: 64px; }
+  body {
+    margin: 0; background: var(--navy); color: var(--linework);
+    font-family: "IBM Plex Sans", -apple-system, sans-serif;
+    background-image:
+      linear-gradient(var(--ink-line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--ink-line) 1px, transparent 1px),
+      linear-gradient(var(--ink-line-major) 1px, transparent 1px),
+      linear-gradient(90deg, var(--ink-line-major) 1px, transparent 1px);
+    background-size: 16px 16px, 16px 16px, 96px 96px, 96px 96px;
+    background-position: -1px -1px;
+  }
+
+  .titleblock {
+    max-width: 1180px; margin: 2rem auto 0; padding: 0 1.25rem;
+  }
+  .titleblock-grid {
+    display: grid; grid-template-columns: 2fr 1fr 1fr; border: 1.5px solid var(--linework-dim);
+  }
+  .tb-cell {
+    border-right: 1.5px solid var(--linework-dim); border-bottom: 1.5px solid var(--linework-dim);
+    padding: 0.9rem 1.1rem;
+  }
+  .tb-cell:last-child { border-right: none; }
+  .tb-cell .tb-key {
+    font-family: "IBM Plex Mono", monospace; font-size: 0.65rem; letter-spacing: 1px;
+    color: var(--linework-dim); display: block; margin-bottom: 0.3rem;
+  }
+  .tb-cell .tb-val { font-size: 1rem; font-weight: 600; color: #fff; }
+  .tb-cell.title-main { grid-row: span 2; display: flex; flex-direction: column; justify-content: center; }
+  .tb-cell.title-main .tb-val { font-family: "IBM Plex Sans Condensed", sans-serif; font-size: 1.5rem; line-height: 1.25; font-weight: 700; }
+  .tb-cell.title-main .tb-sub { font-family: "IBM Plex Mono", monospace; font-size: 0.75rem; color: var(--linework-dim); margin-top: 0.5rem; }
+  .tb-row-bottom { border-bottom: none !important; }
+
+  nav.sheets {
+    max-width: 1180px; margin: 0 auto; padding: 0.9rem 1.25rem;
+    display: flex; gap: 0; flex-wrap: wrap; position: sticky; top: 0; z-index: 10;
+    background: var(--navy-deep); border-bottom: 1.5px solid var(--linework-dim);
+  }
+  nav.sheets a {
+    font-family: "IBM Plex Mono", monospace; font-size: 0.72rem; letter-spacing: 0.5px;
+    color: var(--linework-dim); text-decoration: none; padding: 0.4rem 0.9rem;
+    border-right: 1px solid var(--ink-line-major);
+  }
+  nav.sheets a:hover, nav.sheets a:focus-visible { color: var(--amber); }
+  nav.sheets a span { color: var(--linework); font-weight: 600; }
+
+  main { max-width: 1180px; margin: 0 auto; padding: 2.5rem 1.25rem 5rem; }
+
+  .sheet {
+    margin-bottom: 4rem; position: relative; border: 1.5px solid var(--linework-dim);
+    padding: 2rem 1.75rem 1.5rem;
+  }
+  .sheet::before, .sheet::after,
+  .sheet .reg-br::before, .sheet .reg-bl::before {
