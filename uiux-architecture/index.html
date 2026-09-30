@@ -4,322 +4,298 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <title>UI/UX Architecture — Healthcare Data Use Case Platform</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Sans+Condensed:wght@600;700&display=swap" rel="stylesheet">
 <style>
   :root {
-    --navy: #0F2942;
-    --navy-deep: #0A1E30;
-    --ink-line: rgba(184, 214, 234, 0.14);
-    --ink-line-major: rgba(184, 214, 234, 0.28);
-    --linework: #B9D6EA;
-    --linework-dim: #7FA8C9;
-    --paper: #F5F1E4;
-    --paper-ink: #1B2A33;
-    --paper-edge: #C9C0A6;
-    --amber: #D98E2B;
+    --teal: #028090;
+    --seafoam: #00A896;
+    --mint: #02C39A;
+    --dark: #012E33;
+    --ink: #17282B;
+    --muted: #5C7377;
+    --card-bg: #F2F7F7;
+    --wire-bg: #FAFAFA;
+    --wire-border: #B9C4C4;
+    --wire-line: #C7CFCF;
+    --bg: #FFFFFF;
+    --header-fg: #FFFFFF;
     box-sizing: border-box;
     padding-top: env(safe-area-inset-top, 0px);
     padding-bottom: env(safe-area-inset-bottom, 0px);
   }
-  @media (prefers-color-scheme: light) { :root { --navy: #0F2942; } }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0E1416;
+      --ink: #E7EEEE;
+      --muted: #9FB2B4;
+      --card-bg: #16211F;
+      --wire-bg: #1B2725;
+      --wire-border: #3A4C4C;
+      --wire-line: #33403F;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0E1416;
+    --ink: #E7EEEE;
+    --muted: #9FB2B4;
+    --card-bg: #16211F;
+    --wire-bg: #1B2725;
+    --wire-border: #3A4C4C;
+    --wire-line: #33403F;
+  }
+  html { scroll-behavior: smooth; scroll-padding-top: env(safe-area-inset-top, 0px); }
   * { box-sizing: border-box; }
-  html { scroll-behavior: smooth; scroll-padding-top: 64px; }
   body {
-    margin: 0; background: var(--navy); color: var(--linework);
-    font-family: "IBM Plex Sans", -apple-system, sans-serif;
-    background-image:
-      linear-gradient(var(--ink-line) 1px, transparent 1px),
-      linear-gradient(90deg, var(--ink-line) 1px, transparent 1px),
-      linear-gradient(var(--ink-line-major) 1px, transparent 1px),
-      linear-gradient(90deg, var(--ink-line-major) 1px, transparent 1px);
-    background-size: 16px 16px, 16px 16px, 96px 96px, 96px 96px;
-    background-position: -1px -1px;
+    margin: 0; background: var(--bg); color: var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   }
+  header.hero {
+    background: linear-gradient(135deg, var(--dark), var(--teal));
+    color: #fff; padding: 2.5rem 1.5rem 2rem;
+  }
+  header.hero .eyebrow {
+    font-size: 0.75rem; letter-spacing: 2px; font-weight: 700; color: var(--mint);
+    text-transform: uppercase; margin-bottom: 0.4rem;
+  }
+  header.hero h1 { margin: 0 0 0.5rem; font-size: clamp(1.5rem, 4vw, 2.1rem); }
+  header.hero p { margin: 0; color: #BFD9DA; max-width: 60ch; font-size: 0.95rem; }
 
-  .titleblock {
-    max-width: 1180px; margin: 2rem auto 0; padding: 0 1.25rem;
+  nav.jump {
+    display: flex; flex-wrap: wrap; gap: 0.5rem;
+    padding: 1rem 1.5rem; background: var(--card-bg);
+    border-bottom: 1px solid var(--wire-border); position: sticky; top: 0; z-index: 10;
   }
-  .titleblock-grid {
-    display: grid; grid-template-columns: 2fr 1fr 1fr; border: 1.5px solid var(--linework-dim);
+  nav.jump a {
+    text-decoration: none; color: var(--teal); font-size: 0.85rem; font-weight: 600;
+    padding: 0.4rem 0.8rem; border-radius: 999px; border: 1px solid var(--wire-border);
+    white-space: nowrap;
   }
-  .tb-cell {
-    border-right: 1.5px solid var(--linework-dim); border-bottom: 1.5px solid var(--linework-dim);
-    padding: 0.9rem 1.1rem;
-  }
-  .tb-cell:last-child { border-right: none; }
-  .tb-cell .tb-key {
-    font-family: "IBM Plex Mono", monospace; font-size: 0.65rem; letter-spacing: 1px;
-    color: var(--linework-dim); display: block; margin-bottom: 0.3rem;
-  }
-  .tb-cell .tb-val { font-size: 1rem; font-weight: 600; color: #fff; }
-  .tb-cell.title-main { grid-row: span 2; display: flex; flex-direction: column; justify-content: center; }
-  .tb-cell.title-main .tb-val { font-family: "IBM Plex Sans Condensed", sans-serif; font-size: 1.5rem; line-height: 1.25; font-weight: 700; }
-  .tb-cell.title-main .tb-sub { font-family: "IBM Plex Mono", monospace; font-size: 0.75rem; color: var(--linework-dim); margin-top: 0.5rem; }
-  .tb-row-bottom { border-bottom: none !important; }
+  :root[data-theme="dark"] nav.jump a, @media (prefers-color-scheme: dark) { }
+  nav.jump a:hover { background: var(--teal); color: #fff; }
 
-  nav.sheets {
-    max-width: 1180px; margin: 0 auto; padding: 0.9rem 1.25rem;
-    display: flex; gap: 0; flex-wrap: wrap; position: sticky; top: 0; z-index: 10;
-    background: var(--navy-deep); border-bottom: 1.5px solid var(--linework-dim);
-  }
-  nav.sheets a {
-    font-family: "IBM Plex Mono", monospace; font-size: 0.72rem; letter-spacing: 0.5px;
-    color: var(--linework-dim); text-decoration: none; padding: 0.4rem 0.9rem;
-    border-right: 1px solid var(--ink-line-major);
-  }
-  nav.sheets a:hover, nav.sheets a:focus-visible { color: var(--amber); }
-  nav.sheets a span { color: var(--linework); font-weight: 600; }
+  main { max-width: 1180px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
 
-  main { max-width: 1180px; margin: 0 auto; padding: 2.5rem 1.25rem 5rem; }
+  section.block { margin-bottom: 3.5rem; }
+  section.block h2 {
+    font-size: 1.5rem; margin-bottom: 0.3rem; display: flex; align-items: center; gap: 0.6rem;
+  }
+  section.block .persona-tag {
+    font-size: 0.7rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase;
+    color: var(--seafoam);
+  }
+  section.block > p.desc { color: var(--muted); max-width: 80ch; margin: 0.3rem 0 1.5rem; font-size: 0.95rem; }
 
-  .sheet {
-    margin-bottom: 4rem; position: relative; border: 1.5px solid var(--linework-dim);
-    padding: 2rem 1.75rem 1.5rem;
-  }
-  .sheet::before, .sheet::after,
-  .sheet .reg-br::before, .sheet .reg-bl::before {
-    content: ""; position: absolute; width: 18px; height: 18px;
-    border: 1.5px solid var(--amber); opacity: 0.85;
-  }
-  .sheet::before { top: -1.5px; left: -1.5px; border-right: none; border-bottom: none; }
-  .sheet::after { top: -1.5px; right: -1.5px; border-left: none; border-bottom: none; }
-
-  .sheet-heading {
-    display: flex; align-items: baseline; gap: 0.9rem; margin-bottom: 0.4rem;
-  }
-  .sheet-num {
-    font-family: "IBM Plex Mono", monospace; font-size: 0.85rem; color: var(--amber); font-weight: 600;
-  }
-  .sheet-heading h2 {
-    font-family: "IBM Plex Sans Condensed", sans-serif; font-size: 1.7rem; margin: 0; color: #fff; font-weight: 700;
-  }
-  .sheet-desc { color: var(--linework-dim); max-width: 72ch; font-size: 0.94rem; margin: 0.3rem 0 1.8rem; }
-
-  .diagram-sheet {
-    background: var(--paper); border: 1.5px solid var(--paper-edge); padding: 1.5rem;
-    overflow-x: auto; color: var(--paper-ink);
+  .diagram-wrap {
+    background: var(--wire-bg); border: 1px solid var(--wire-border); border-radius: 12px;
+    padding: 1.5rem; overflow-x: auto;
   }
   pre.mermaid { margin: 0; }
-  .diagram-sheet svg text,
-  .diagram-sheet svg .nodeLabel,
-  .diagram-sheet svg .edgeLabel,
-  .diagram-sheet svg foreignObject div,
-  .diagram-sheet svg foreignObject span,
-  .diagram-sheet svg tspan {
-    color: #1B2A33 !important;
-    fill: #1B2A33 !important;
-  }
-  .scale-note {
-    font-family: "IBM Plex Mono", monospace; font-size: 0.7rem; color: var(--linework-dim);
-    margin-top: 0.6rem; display: flex; justify-content: space-between;
+
+  .screens-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 1.5rem;
   }
 
-  .figs-grid {
-    display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 2rem;
+  .screen {
+    background: var(--wire-bg); border: 1px solid var(--wire-border); border-radius: 10px;
+    overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+  }
+  .screen-label {
+    font-size: 0.78rem; font-weight: 700; color: #fff; background: var(--teal);
+    padding: 0.5rem 0.9rem;
+  }
+  .screen-body { padding: 1rem; }
+
+  .wf-topbar {
+    display: flex; align-items: center; justify-content: space-between;
+    background: var(--card-bg); border: 1px dashed var(--wire-border);
+    border-radius: 6px; padding: 0.5rem 0.8rem; margin-bottom: 0.8rem; font-size: 0.75rem; font-weight: 700;
+  }
+  .wf-avatar {
+    width: 20px; height: 20px; border-radius: 50%; background: var(--wire-line);
+  }
+  .wf-progress {
+    display: flex; gap: 4px; margin-bottom: 0.8rem;
+  }
+  .wf-progress span {
+    flex: 1; height: 6px; border-radius: 3px; background: var(--wire-line);
+  }
+  .wf-progress span.active { background: var(--seafoam); }
+
+  .wf-field-label { font-size: 0.78rem; font-weight: 600; margin: 0.7rem 0 0.3rem; color: var(--ink); }
+  .wf-input, .wf-textarea, .wf-select {
+    border: 1.5px dashed var(--wire-border); border-radius: 6px; background: transparent;
+    padding: 0.5rem 0.6rem; font-size: 0.72rem; color: var(--muted);
+  }
+  .wf-input { height: 1.8rem; }
+  .wf-select { height: 1.8rem; display: flex; align-items: center; justify-content: space-between; }
+  .wf-select::after { content: "▾"; opacity: 0.6; }
+  .wf-textarea { height: 3.4rem; }
+
+  .wf-btn {
+    display: inline-block; font-size: 0.72rem; font-weight: 700; border-radius: 6px;
+    padding: 0.45rem 0.9rem; margin-top: 0.9rem; margin-right: 0.5rem;
+  }
+  .wf-btn-primary { background: var(--teal); color: #fff; }
+  .wf-btn-secondary { background: transparent; border: 1.5px solid var(--wire-border); color: var(--muted); }
+
+  .wf-line { height: 8px; border-radius: 4px; background: var(--wire-line); margin: 0.35rem 0; }
+  .wf-line.w60 { width: 60%; }
+  .wf-line.w80 { width: 80%; }
+  .wf-line.w40 { width: 40%; }
+  .wf-line.w100 { width: 100%; }
+
+  .wf-tag {
+    display: inline-block; font-size: 0.65rem; font-weight: 700; padding: 0.15rem 0.5rem;
+    border-radius: 999px; letter-spacing: 0.5px;
+  }
+  .tag-high { background: #F6D5D2; color: #9A2E20; }
+  .tag-med { background: #FCE7C3; color: #8A5A0C; }
+  .tag-low { background: #D6ECD9; color: #2A6B37; }
+  .tag-status { background: var(--wire-line); color: var(--ink); }
+
+  .wf-card {
+    border: 1px solid var(--wire-border); border-radius: 8px; padding: 0.7rem 0.8rem; margin-bottom: 0.6rem;
+    background: var(--card-bg);
+  }
+  .wf-card .wf-card-title { font-size: 0.78rem; font-weight: 700; margin-bottom: 0.3rem; }
+
+  .wf-table { width: 100%; border-collapse: collapse; font-size: 0.72rem; }
+  .wf-table th {
+    text-align: left; font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.5px;
+    color: var(--muted); border-bottom: 1px solid var(--wire-border); padding: 0.4rem 0.3rem;
+  }
+  .wf-table td { border-bottom: 1px dashed var(--wire-border); padding: 0.5rem 0.3rem; color: var(--ink); }
+
+  .wf-search {
+    display: flex; align-items: center; gap: 0.5rem; border: 1.5px dashed var(--wire-border);
+    border-radius: 999px; padding: 0.45rem 0.9rem; font-size: 0.72rem; color: var(--muted); margin-bottom: 0.8rem;
   }
 
-  .figure { display: flex; flex-direction: column; }
-  .fig-caption {
-    font-family: "IBM Plex Mono", monospace; font-size: 0.72rem; color: var(--linework-dim);
-    margin-bottom: 0.5rem;
-  }
-  .fig-caption b { color: var(--amber); }
-
-  .paper-card {
-    background: var(--paper); color: var(--paper-ink); border: 1.5px solid var(--paper-edge);
-    padding: 1.1rem 1.2rem 1.3rem; flex: 1;
-  }
-  .pc-header {
-    display: flex; justify-content: space-between; align-items: center;
-    border-bottom: 2px solid var(--paper-ink); padding-bottom: 0.5rem; margin-bottom: 0.9rem;
-    font-family: "IBM Plex Mono", monospace; font-size: 0.72rem; font-weight: 600;
-  }
-
-  .form-line { margin-bottom: 0.9rem; }
-  .form-line label {
-    display: block; font-size: 0.78rem; margin-bottom: 0.25rem; color: var(--paper-ink);
-  }
-  .form-line .blank {
-    border-bottom: 1.3px solid var(--paper-ink); height: 1.1rem;
-  }
-  .form-line .blank.short { width: 55%; }
-
-  .choice-row { font-family: "IBM Plex Mono", monospace; font-size: 0.76rem; margin: 0.35rem 0; }
-  .choice-row .box { margin-right: 0.4rem; }
-
-  .btn-field {
-    display: inline-block; font-family: "IBM Plex Mono", monospace; font-size: 0.72rem; font-weight: 600;
-    border: 1.3px solid var(--paper-ink); padding: 0.4rem 0.7rem; margin: 0.9rem 0.5rem 0 0;
-  }
-  .btn-field.primary { background: var(--paper-ink); color: var(--paper); }
-
-  .stamp {
-    display: inline-block; border: 2.5px solid var(--amber); color: var(--amber);
-    font-family: "IBM Plex Mono", monospace; font-weight: 700; font-size: 0.85rem;
-    padding: 0.3rem 0.7rem; transform: rotate(-6deg); letter-spacing: 1px;
-  }
-
-  .tag {
-    display: inline-block; font-family: "IBM Plex Mono", monospace; font-size: 0.68rem; font-weight: 600;
-    border: 1.3px solid currentColor; padding: 0.1rem 0.4rem;
-  }
-  .tag.high { color: #A6432E; }
-  .tag.med { color: #92661A; }
-  .tag.low { color: #3D6B3F; }
-  .tag.neutral { color: var(--paper-ink); }
-
-  table.rec-table { width: 100%; border-collapse: collapse; font-size: 0.75rem; margin-top: 0.3rem; }
-  table.rec-table th {
-    text-align: left; font-family: "IBM Plex Mono", monospace; font-size: 0.66rem; font-weight: 600;
-    border-bottom: 2px solid var(--paper-ink); padding: 0.3rem 0.4rem 0.4rem;
-  }
-  table.rec-table td { border-bottom: 1px solid var(--paper-edge); padding: 0.4rem; }
-
-  .field-note {
-    font-size: 0.76rem; line-height: 1.4; margin: 0.2rem 0 0.9rem; padding-left: 0.8rem;
-    border-left: 2px solid var(--amber);
-  }
-
-  .steps-list { margin-top: 0.6rem; }
-  .step-row {
-    display: flex; align-items: center; gap: 0.5rem; font-family: "IBM Plex Mono", monospace;
-    font-size: 0.74rem; margin-bottom: 0.4rem;
-  }
-  .step-mark { width: 1rem; text-align: center; }
+  .wf-steps { display: flex; flex-direction: column; gap: 0.5rem; margin-top: 0.6rem; }
+  .wf-step { display: flex; align-items: center; gap: 0.6rem; font-size: 0.73rem; }
+  .wf-step-dot { width: 16px; height: 16px; border-radius: 50%; flex-shrink: 0; border: 2px solid var(--wire-border); }
+  .wf-step-dot.done { background: var(--mint); border-color: var(--mint); }
+  .wf-step-dot.progress { background: var(--seafoam); border-color: var(--seafoam); }
 
   footer {
-    text-align: center; color: var(--linework-dim); font-family: "IBM Plex Mono", monospace;
-    font-size: 0.72rem; padding: 2.5rem 1rem 3rem; letter-spacing: 0.5px;
+    text-align: center; color: var(--muted); font-size: 0.8rem; padding: 2rem 1rem;
   }
 </style>
 </head>
 <body>
 
-<div class="titleblock">
-  <div class="titleblock-grid">
-    <div class="tb-cell title-main">
-      <span class="tb-val">Healthcare Data Use Case Assessment &amp; Protection Platform</span>
-      <span class="tb-sub">UI / UX ARCHITECTURE SET</span>
-    </div>
-    <div class="tb-cell">
-      <span class="tb-key">PROJECT TEAM</span>
-      <span class="tb-val" style="font-size:0.9rem;">The Great Collaborators</span>
-    </div>
-    <div class="tb-cell">
-      <span class="tb-key">MILESTONE</span>
-      <span class="tb-val" style="font-size:0.9rem;">02</span>
-    </div>
-    <div class="tb-cell tb-row-bottom">
-      <span class="tb-key">DATE</span>
-      <span class="tb-val" style="font-size:0.9rem;">Sep 2026</span>
-    </div>
-    <div class="tb-cell tb-row-bottom">
-      <span class="tb-key">SHEETS</span>
-      <span class="tb-val" style="font-size:0.9rem;">A-100 &ndash; A-104</span>
-    </div>
-  </div>
-</div>
+<header class="hero">
+  <div class="eyebrow">UI / UX Architecture</div>
+  <h1>Healthcare Data Use Case Assessment &amp; Protection Platform</h1>
+  <p>Information architecture and low-fidelity wireframes covering all four user roles: Researcher, Data Steward, Compliance Officer, and Governance Administrator.</p>
+</header>
 
-<nav class="sheets">
-  <a href="#a100"><span>A-100</span> · Flow</a>
-  <a href="#a101"><span>A-101</span> · Researcher</a>
-  <a href="#a102"><span>A-102</span> · Steward</a>
-  <a href="#a103"><span>A-103</span> · Compliance</a>
-  <a href="#a104"><span>A-104</span> · Admin</a>
+<nav class="jump">
+  <a href="#ia">Information Architecture</a>
+  <a href="#researcher">Researcher</a>
+  <a href="#steward">Data Steward</a>
+  <a href="#compliance">Compliance Officer</a>
+  <a href="#admin">Governance Admin</a>
 </nav>
 
 <main>
 
-  <section class="sheet" id="a100">
-    <div class="sheet-heading"><span class="sheet-num">A-100</span><h2>System Flow Diagram</h2></div>
-    <p class="sheet-desc">How the four roles move through the platform, and where their paths cross: a researcher's submission routes into the steward's review, which routes back into the researcher's recommendations.</p>
-    <div class="diagram-sheet">
+  <section class="block" id="ia">
+    <h2>System-Wide User Flow</h2>
+    <p class="desc">How the four personas move through the platform, and where their paths connect: a researcher's submission feeds the steward's review, which in turn feeds the researcher's recommendations.</p>
+    <div class="diagram-wrap">
       <pre class="mermaid">
-%%{init: {'theme':'base', 'themeVariables': { 'primaryColor':'#F5F1E4','primaryBorderColor':'#1B2A33','primaryTextColor':'#1B2A33','secondaryTextColor':'#1B2A33','tertiaryTextColor':'#1B2A33','textColor':'#1B2A33','nodeTextColor':'#1B2A33','lineColor':'#1B2A33','edgeLabelBackground':'#F5F1E4','fontFamily':'IBM Plex Mono, monospace','fontSize':'13px'}}}%%
 graph TD
-    A["LOGIN"] --> B{"SELECT ROLE"}
+    A["Login"] --> B{"Select Role"}
 
-    B --> R1["RESEARCHER:<br/>START / RESUME ASSESSMENT"]
-    R1 --> R2["GUIDED QUESTIONNAIRE<br/>(6 CATEGORIES)"]
-    R2 --> R3["SUBMISSION CONFIRMATION"]
-    R3 --> R4["VIEW RISK FLAGS<br/>&amp; RECOMMENDATIONS"]
-    R4 --> R5["PROTECTION WORKFLOW TRACKER"]
+    B --> R1["Researcher:<br/>Start / Resume Assessment"]
+    R1 --> R2["Guided Questionnaire<br/>(6 categories)"]
+    R2 --> R3["Submission Confirmation"]
+    R3 --> R4["View Risk Flags<br/>&amp; Recommendations"]
+    R4 --> R5["Protection Workflow Tracker"]
 
-    B --> S1["DATA STEWARD:<br/>SUBMISSIONS DASHBOARD"]
-    S1 --> S2["SUBMISSION DETAIL<br/>&amp; RISK SUMMARY"]
-    S2 --> S3["FLAG FOR FOLLOW-UP"]
-    S2 --> S4["APPROVE / MODIFY / REJECT<br/>PROTECTIONS"]
+    B --> S1["Data Steward:<br/>Submissions Dashboard"]
+    S1 --> S2["Submission Detail<br/>&amp; Risk Summary"]
+    S2 --> S3["Flag for Follow-up"]
+    S2 --> S4["Approve / Modify / Reject<br/>Protections"]
 
-    B --> C1["COMPLIANCE OFFICER:<br/>SEARCHABLE REPOSITORY"]
-    C1 --> C2["RISK SEVERITY QUEUE"]
-    C2 --> C3["PROTECTION AUDIT RECORDS"]
+    B --> C1["Compliance Officer:<br/>Searchable Repository"]
+    C1 --> C2["Risk Severity Queue"]
+    C2 --> C3["Protection Audit Records"]
 
-    B --> G1["GOVERNANCE ADMIN:<br/>RISK RULE CONFIGURATION"]
+    B --> G1["Governance Admin:<br/>Risk Rule Configuration"]
 
     R2 -.auto-analysis.-> S2
     G1 -.rule updates.-> R2
     S4 -.approved conditions.-> R4
     S3 -.clarification needed.-> R4
       </pre>
-      <div class="scale-note"><span>SCALE: NOT TO SCALE</span><span>REV. A</span></div>
     </div>
   </section>
 
-  <section class="sheet" id="a101">
-    <div class="sheet-heading"><span class="sheet-num">A-101</span><h2>Researcher</h2></div>
-    <p class="sheet-desc">Submits a data use request, then sees what risk it raised and what to do about it. Epics 1 &amp; 3.</p>
-    <div class="figs-grid">
+  <section class="block" id="researcher">
+    <h2><span class="persona-tag">Epic 1 &amp; 3</span></h2>
+    <h2 style="margin-top:0;">Researcher</h2>
+    <p class="desc">Submits a data use request, then sees what risks it raised and what to do next.</p>
+    <div class="screens-grid">
 
-      <div class="figure">
-        <div class="fig-caption">FIG. 1.1 &mdash; <b>Guided Questionnaire, Step 2 of 6</b></div>
-        <div class="paper-card">
-          <div class="pc-header"><span>DATA USE CASE ASSESSMENT</span><span>02 / 06</span></div>
-          <div class="form-line">
-            <label>What is the sensitivity level of the data involved?</label>
-            <div class="choice-row"><span class="box">[ ]</span>Full PHI &nbsp; <span class="box">[X]</span>Limited data set &nbsp; <span class="box">[ ]</span>De-identified</div>
+      <div class="screen">
+        <div class="screen-label">Screen 1 — Guided Questionnaire</div>
+        <div class="screen-body">
+          <div class="wf-topbar"><span>Data Use Case Assessment</span><div class="wf-avatar"></div></div>
+          <div class="wf-progress">
+            <span class="active"></span><span class="active"></span><span></span><span></span><span></span><span></span>
           </div>
-          <div class="form-line">
-            <label>Does the dataset include any special categories of health information?</label>
-            <div class="blank"></div>
-          </div>
-          <button class="btn-field">SAVE &amp; EXIT</button>
-          <button class="btn-field primary">NEXT</button>
+          <div class="wf-field-label">Step 2 of 6 — Data Sensitivity</div>
+          <div class="wf-field-label">What is the sensitivity level of the data involved?</div>
+          <div class="wf-select">Full PHI / Limited data set / De-identified</div>
+          <div class="wf-field-label">Does the dataset include special categories of health info?</div>
+          <div class="wf-textarea"></div>
+          <button class="wf-btn wf-btn-secondary">Save &amp; Exit</button>
+          <button class="wf-btn wf-btn-primary">Next →</button>
         </div>
       </div>
 
-      <div class="figure">
-        <div class="fig-caption">FIG. 1.2 &mdash; <b>Submission Confirmation</b></div>
-        <div class="paper-card" style="text-align:center;">
-          <div class="stamp">SUBMITTED</div>
-          <div class="form-line" style="margin-top:1.2rem; text-align:left;">
-            <label>Assessment ID</label>
-            <div class="blank short">#A1F9-22</div>
+      <div class="screen">
+        <div class="screen-label">Screen 2 — Submission Confirmation</div>
+        <div class="screen-body">
+          <div class="wf-card" style="text-align:center;">
+            <div style="font-size:2rem;">✅</div>
+            <div class="wf-card-title" style="margin-top:0.4rem;">Assessment Submitted Successfully</div>
+            <div class="wf-line w60" style="margin:0.8rem auto;"></div>
           </div>
-          <div class="form-line" style="text-align:left;">
-            <label>Status</label>
-            <span class="tag med">UNDER REVIEW</span>
-          </div>
-          <button class="btn-field primary">VIEW MY SUBMISSIONS</button>
+          <div class="wf-field-label">Assessment ID: <span class="wf-tag tag-status">#A1F9-22</span></div>
+          <div class="wf-line w40"></div>
+          <div class="wf-field-label">Status</div>
+          <span class="wf-tag tag-med">UNDER REVIEW</span>
+          <br/>
+          <button class="wf-btn wf-btn-primary">View My Submissions</button>
         </div>
       </div>
 
-      <div class="figure">
-        <div class="fig-caption">FIG. 1.3 &mdash; <b>Risk Flags &amp; Recommendations</b></div>
-        <div class="paper-card">
-          <div class="pc-header"><span>ASSESSMENT #A1F9-22</span><span class="tag med">MEDIUM RISK</span></div>
-          <div class="form-line"><label>Why this was flagged</label></div>
-          <div class="field-note">Re-identification concerns &mdash; cohort size combined with requested variables could allow individuals to be identified.</div>
-          <table class="rec-table">
-            <tr><th>Recommended Protection</th><th>Rationale</th></tr>
-            <tr><td>De-identification (Safe Harbor)</td><td>Removes direct identifiers</td></tr>
-            <tr><td>Data minimization</td><td>Limits fields to what's needed</td></tr>
-          </table>
-          <div class="steps-list">
-            <div class="step-row"><span class="step-mark">■</span> Request de-identified dataset &mdash; COMPLETE</div>
-            <div class="step-row"><span class="step-mark">▶</span> Apply for access &mdash; IN PROGRESS</div>
-            <div class="step-row"><span class="step-mark">□</span> Sign data use agreement &mdash; NOT STARTED</div>
+      <div class="screen">
+        <div class="screen-label">Screen 3 — Risk Flags &amp; Recommendations</div>
+        <div class="screen-body">
+          <div class="wf-topbar"><span>Assessment #A1F9-22</span><span class="wf-tag tag-med">MEDIUM RISK</span></div>
+          <div class="wf-field-label">Why this was flagged</div>
+          <div class="wf-card">
+            <div class="wf-card-title">Re-identification Concerns</div>
+            <div class="wf-line w100"></div>
+            <div class="wf-line w80"></div>
+          </div>
+          <div class="wf-field-label">Recommended Protections</div>
+          <div class="wf-card">
+            <div class="wf-card-title">De-identification (Safe Harbor)</div>
+            <div class="wf-line w60"></div>
+          </div>
+          <div class="wf-card">
+            <div class="wf-card-title">Data Minimization</div>
+            <div class="wf-line w60"></div>
+          </div>
+          <div class="wf-field-label">Implementation Workflow</div>
+          <div class="wf-steps">
+            <div class="wf-step"><div class="wf-step-dot done"></div> Request de-identified dataset</div>
+            <div class="wf-step"><div class="wf-step-dot progress"></div> Apply for access</div>
+            <div class="wf-step"><div class="wf-step-dot"></div> Sign data use agreement</div>
           </div>
         </div>
       </div>
@@ -327,121 +303,148 @@ graph TD
     </div>
   </section>
 
-  <section class="sheet" id="a102">
-    <div class="sheet-heading"><span class="sheet-num">A-102</span><h2>Data Steward</h2></div>
-    <p class="sheet-desc">Reviews incoming submissions, reads the risk explanation, and decides on protections. Epics 1, 2 &amp; 3.</p>
-    <div class="figs-grid">
+  <section class="block" id="steward">
+    <h2><span class="persona-tag">Epic 1, 2 &amp; 3</span></h2>
+    <h2 style="margin-top:0;">Data Steward</h2>
+    <p class="desc">Reviews incoming submissions, understands why they were flagged, and decides on protections.</p>
+    <div class="screens-grid">
 
-      <div class="figure">
-        <div class="fig-caption">FIG. 2.1 &mdash; <b>Submissions Dashboard</b></div>
-        <div class="paper-card">
-          <div class="pc-header"><span>DATA STEWARD PORTAL</span><span>3 OPEN</span></div>
-          <table class="rec-table">
+      <div class="screen">
+        <div class="screen-label">Screen 1 — Submissions Dashboard</div>
+        <div class="screen-body">
+          <div class="wf-topbar"><span>Data Steward Portal</span><div class="wf-avatar"></div></div>
+          <div class="wf-search">🔍 Search by submitter, date, or status…</div>
+          <table class="wf-table">
             <tr><th>Submitter</th><th>Date</th><th>Severity</th><th>Status</th></tr>
-            <tr><td>J. Alvarez</td><td>09/24</td><td><span class="tag high">HIGH</span></td><td>Flagged</td></tr>
-            <tr><td>M. Chen</td><td>09/23</td><td><span class="tag med">MED</span></td><td>Reviewing</td></tr>
-            <tr><td>R. Patel</td><td>09/22</td><td><span class="tag low">LOW</span></td><td>Cleared</td></tr>
+            <tr><td>J. Alvarez</td><td>Sep 24</td><td><span class="wf-tag tag-high">HIGH</span></td><td>Flagged</td></tr>
+            <tr><td>M. Chen</td><td>Sep 23</td><td><span class="wf-tag tag-med">MED</span></td><td>Reviewing</td></tr>
+            <tr><td>R. Patel</td><td>Sep 22</td><td><span class="wf-tag tag-low">LOW</span></td><td>Cleared</td></tr>
           </table>
         </div>
       </div>
 
-      <div class="figure">
-        <div class="fig-caption">FIG. 2.2 &mdash; <b>Submission Detail &amp; Risk Summary</b></div>
-        <div class="paper-card">
-          <div class="pc-header"><span>J. ALVAREZ</span><span>SUBMITTED 09/24</span></div>
-          <div class="form-line"><label>Questionnaire summary</label><div class="blank"></div><div class="blank" style="margin-top:0.4rem;"></div></div>
-          <div class="field-note">Cohort size is small enough that, combined with requested variables, re-identification is plausible.</div>
-          <button class="btn-field">FLAG FOR FOLLOW-UP</button>
-          <button class="btn-field primary">REVIEW PROTECTIONS</button>
+      <div class="screen">
+        <div class="screen-label">Screen 2 — Submission Detail &amp; Risk Summary</div>
+        <div class="screen-body">
+          <div class="wf-topbar"><span>J. Alvarez — Submitted Sep 24, 2026</span></div>
+          <div class="wf-field-label">Questionnaire Summary</div>
+          <div class="wf-line w100"></div><div class="wf-line w80"></div><div class="wf-line w60"></div>
+          <div class="wf-field-label">Risk Explanation (plain language)</div>
+          <div class="wf-card">
+            <div class="wf-card-title">Cohort size is small</div>
+            <div class="wf-line w100"></div>
+          </div>
+          <button class="wf-btn wf-btn-secondary">Flag for Follow-up</button>
+          <button class="wf-btn wf-btn-primary">Review Protections →</button>
         </div>
       </div>
 
-      <div class="figure">
-        <div class="fig-caption">FIG. 2.3 &mdash; <b>Approve / Modify Protections</b></div>
-        <div class="paper-card">
-          <div class="pc-header"><span>RECOMMENDED PROTECTIONS</span></div>
-          <table class="rec-table">
-            <tr><th>Mechanism</th><th>Status</th></tr>
-            <tr><td>De-identification (Safe Harbor)</td><td class="tag neutral">SUGGESTED</td></tr>
-          </table>
-          <button class="btn-field primary">APPROVE</button>
-          <button class="btn-field">MODIFY</button>
-          <button class="btn-field">REJECT</button>
-          <div class="form-line" style="margin-top:0.9rem;"><label>Approver note</label><div class="blank"></div></div>
+      <div class="screen">
+        <div class="screen-label">Screen 3 — Approve / Modify Protections</div>
+        <div class="screen-body">
+          <div class="wf-topbar"><span>Recommended Protections</span></div>
+          <div class="wf-card">
+            <div class="wf-card-title">De-identification (Safe Harbor)</div>
+            <div class="wf-line w60"></div>
+            <span class="wf-tag tag-low">SUGGESTED</span>
+          </div>
+          <button class="wf-btn wf-btn-primary">Approve</button>
+          <button class="wf-btn wf-btn-secondary">Modify</button>
+          <button class="wf-btn wf-btn-secondary">Reject</button>
+          <div class="wf-field-label" style="margin-top:1rem;">Approver Note</div>
+          <div class="wf-textarea"></div>
         </div>
       </div>
 
     </div>
   </section>
 
-  <section class="sheet" id="a103">
-    <div class="sheet-heading"><span class="sheet-num">A-103</span><h2>Compliance Officer</h2></div>
-    <p class="sheet-desc">Audits historical submissions, prioritizes high-risk cases, and keeps exportable protection records. Epics 1, 2 &amp; 3.</p>
-    <div class="figs-grid">
+  <section class="block" id="compliance">
+    <h2><span class="persona-tag">Epic 1, 2 &amp; 3</span></h2>
+    <h2 style="margin-top:0;">Compliance Officer</h2>
+    <p class="desc">Audits historical submissions, prioritizes high-risk cases, and keeps exportable protection records.</p>
+    <div class="screens-grid">
 
-      <div class="figure">
-        <div class="fig-caption">FIG. 3.1 &mdash; <b>Searchable Repository</b></div>
-        <div class="paper-card">
-          <div class="pc-header"><span>ASSESSMENT REPOSITORY</span></div>
-          <div class="form-line"><label>Search by submitter, date, or keyword</label><div class="blank"></div></div>
-          <table class="rec-table">
+      <div class="screen">
+        <div class="screen-label">Screen 1 — Searchable Repository</div>
+        <div class="screen-body">
+          <div class="wf-topbar"><span>Assessment Repository</span></div>
+          <div class="wf-search">🔍 Submitter, date, or keyword…</div>
+          <table class="wf-table">
             <tr><th>ID</th><th>Submitter</th><th>Date</th><th>Severity</th></tr>
-            <tr><td>A1F9</td><td>J. Alvarez</td><td>09/24</td><td><span class="tag high">HIGH</span></td></tr>
-            <tr><td>B2K3</td><td>M. Chen</td><td>09/23</td><td><span class="tag med">MED</span></td></tr>
+            <tr><td>A1F9</td><td>J. Alvarez</td><td>Sep 24</td><td><span class="wf-tag tag-high">HIGH</span></td></tr>
+            <tr><td>B2K3</td><td>M. Chen</td><td>Sep 23</td><td><span class="wf-tag tag-med">MED</span></td></tr>
           </table>
         </div>
       </div>
 
-      <div class="figure">
-        <div class="fig-caption">FIG. 3.2 &mdash; <b>Risk Severity Queue</b></div>
-        <div class="paper-card">
-          <div class="pc-header"><span>EXPEDITED REVIEW QUEUE</span></div>
-          <table class="rec-table">
-            <tr><th>Risk</th><th>Severity</th></tr>
-            <tr><td>Cross-border data movement</td><td><span class="tag high">HIGH</span></td></tr>
-            <tr><td>Re-identification risk</td><td><span class="tag med">MED</span></td></tr>
-          </table>
+      <div class="screen">
+        <div class="screen-label">Screen 2 — Risk Severity Queue</div>
+        <div class="screen-body">
+          <div class="wf-topbar"><span>Expedited Review Queue</span></div>
+          <div class="wf-card">
+            <span class="wf-tag tag-high">HIGH — EXPEDITED</span>
+            <div class="wf-card-title" style="margin-top:0.4rem;">Cross-border data movement</div>
+            <div class="wf-line w80"></div>
+          </div>
+          <div class="wf-card">
+            <span class="wf-tag tag-med">MEDIUM</span>
+            <div class="wf-card-title" style="margin-top:0.4rem;">Re-identification risk</div>
+            <div class="wf-line w60"></div>
+          </div>
         </div>
       </div>
 
-      <div class="figure">
-        <div class="fig-caption">FIG. 3.3 &mdash; <b>Protection Audit Record</b></div>
-        <div class="paper-card">
-          <div class="pc-header"><span>AUDIT RECORD &mdash; A1F9</span></div>
-          <div class="form-line"><label>Mechanism applied</label><div class="blank short"></div></div>
-          <div class="form-line"><label>Approver identity</label><div class="blank short"></div></div>
-          <div class="form-line"><label>Date approved</label><div class="blank short"></div></div>
-          <button class="btn-field primary">EXPORT FOR AUDIT</button>
+      <div class="screen">
+        <div class="screen-label">Screen 3 — Protection Audit Record</div>
+        <div class="screen-body">
+          <div class="wf-topbar"><span>Audit Record — A1F9</span></div>
+          <div class="wf-field-label">Mechanism Applied</div>
+          <div class="wf-line w60"></div>
+          <div class="wf-field-label">Approver Identity</div>
+          <div class="wf-line w40"></div>
+          <div class="wf-field-label">Date Approved</div>
+          <div class="wf-line w40"></div>
+          <button class="wf-btn wf-btn-primary">Export for Audit</button>
         </div>
       </div>
 
     </div>
   </section>
 
-  <section class="sheet" id="a104">
-    <div class="sheet-heading"><span class="sheet-num">A-104</span><h2>Governance Administrator</h2></div>
-    <p class="sheet-desc">Maintains the rules the risk analyzer uses, without needing a developer. Epic 2.</p>
-    <div class="figs-grid">
+  <section class="block" id="admin">
+    <h2><span class="persona-tag">Epic 2</span></h2>
+    <h2 style="margin-top:0;">Governance Administrator</h2>
+    <p class="desc">Maintains the rules the risk analyzer uses, without needing a developer.</p>
+    <div class="screens-grid">
 
-      <div class="figure">
-        <div class="fig-caption">FIG. 4.1 &mdash; <b>Risk Rule Configuration</b></div>
-        <div class="paper-card">
-          <div class="pc-header"><span>RISK RULE SETTINGS</span></div>
-          <table class="rec-table">
+      <div class="screen">
+        <div class="screen-label">Screen 1 — Risk Rule Configuration</div>
+        <div class="screen-body">
+          <div class="wf-topbar"><span>Risk Rule Settings</span></div>
+          <table class="wf-table">
             <tr><th>Rule</th><th>Category</th><th>Severity</th><th>Status</th></tr>
-            <tr><td>Small cohort + quasi-ID</td><td>Re-ID</td><td><span class="tag high">HIGH</span></td><td>Active</td></tr>
-            <tr><td>Cross-org transfer</td><td>Movement</td><td><span class="tag med">MED</span></td><td>Active</td></tr>
+            <tr><td>Small cohort + quasi-ID</td><td>Re-ID</td><td><span class="wf-tag tag-high">HIGH</span></td><td>Active</td></tr>
+            <tr><td>Cross-org transfer</td><td>Movement</td><td><span class="wf-tag tag-med">MED</span></td><td>Active</td></tr>
           </table>
-          <button class="btn-field primary">+ ADD NEW RULE</button>
+          <button class="wf-btn wf-btn-primary">+ Add New Rule</button>
         </div>
       </div>
 
-      <div class="figure">
-        <div class="fig-caption">FIG. 4.2 &mdash; <b>Rule Change Log</b></div>
-        <div class="paper-card">
-          <div class="pc-header"><span>CHANGE HISTORY</span></div>
-          <div class="field-note">Updated: Small cohort + quasi-ID &mdash; admin.jlewis, 09/24</div>
-          <div class="field-note">Added: Cross-org transfer &mdash; admin.jlewis, 09/20</div>
+      <div class="screen">
+        <div class="screen-label">Screen 2 — Rule Change Log</div>
+        <div class="screen-body">
+          <div class="wf-topbar"><span>Change History</span></div>
+          <div class="wf-card">
+            <div class="wf-card-title">Updated: Small cohort + quasi-ID</div>
+            <div class="wf-line w60"></div>
+            <span class="wf-tag tag-status">admin.jlewis — Sep 24</span>
+          </div>
+          <div class="wf-card">
+            <div class="wf-card-title">Added: Cross-org transfer</div>
+            <div class="wf-line w60"></div>
+            <span class="wf-tag tag-status">admin.jlewis — Sep 20</span>
+          </div>
         </div>
       </div>
 
@@ -450,7 +453,7 @@ graph TD
 
 </main>
 
-<footer>THE GREAT COLLABORATORS — MILESTONE 02 — DRAWING SET A-100 THROUGH A-104</footer>
+<footer>The Great Collaborators &middot; Milestone 2 &middot; UI/UX Architecture</footer>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mermaid/10.9.1/mermaid.min.js"></script>
 <script>
