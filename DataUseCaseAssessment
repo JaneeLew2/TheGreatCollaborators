@@ -1,0 +1,264 @@
+"""
+Data Use Case Assessment Tool
+------------------------------
+Guided questionnaire for researchers requesting use of healthcare data
+(e.g., patient-level data intended for research, analytics, or AI/ML use),
+modeled on how a Karlsgate-style privacy/governance workflow would operate
+in a healthcare setting.
+
+Implements the acceptance criteria from the "Data Use Case" user stories:
+
+Researcher story:
+  - Tool prompts for data sensitivity, participant involvement, data
+    movement, intended use, output needs, and re-identification concerns.
+  - User can save a partially completed assessment and resume later.
+  - All required fields must be completed before submission is accepted.
+  - A confirmation message displays upon successful submission.
+
+Data steward story:
+  - Summary displays all questionnaire responses in a readable format.
+  - Summary includes a timestamp and submitter identity.
+  - Steward can flag a submission for follow-up clarification.
+
+Compliance officer story:
+  - Submitted assessments are timestamped and stored with a unique ID.
+  - Assessments are searchable by submitter, date, or keyword.
+  - Access to the repository is restricted to authorized compliance roles.
+"""
+
+import json
+import os
+import uuid
+from datetime import datetime
+
+DRAFT_DIR = "drafts"
+REPOSITORY_FILE = "submitted_assessments.json"
+
+# Healthcare-specific questions, organized by the categories required in
+# the researcher user story.
+assessment_questions = {
+    "Data Sensitivity": [
+        "What is the sensitivity level of the data involved (e.g., full PHI, "
+        "limited data set, de-identified, aggregate only)?",
+        "Does the dataset include any special categories of health "
+        "information (e.g., mental health, substance use, genetic data)?",
+    ],
+    "Participant Involvement": [
+        "Will patients/participants be directly contacted or re-engaged as "
+        "part of this use?",
+        "Is this use covered under existing patient consent, or does it "
+        "require a new consent or IRB determination?",
+    ],
+    "Data Movement": [
+        "Will data move outside the originating health system (e.g., to a "
+        "research partner, vendor, or cloud environment)?",
+        "Will data cross organizational, state, or national boundaries?",
+    ],
+    "Intended Use": [
+        "What is the primary intended use (research, analytics, AI/ML model "
+        "training/validation, operational reporting, other)?",
+        "Is this a one-time analysis or an ongoing/ recurring use?",
+    ],
+    "Output Needs": [
+        "What form will the output take (patient-level data, aggregated "
+        "statistics, a trained model, a report)?",
+        "Will any output be shared outside the requesting team?",
+    ],
+    "Re-identification Concerns": [
+        "Given the size and specificity of the cohort, is there a "
+        "meaningful risk that individuals could be re-identified from the "
+        "output?",
+        "Are any quasi-identifiers (e.g., rare diagnosis, small "
+        "geographic area, exact dates) included in the requested data?",
+    ],
+}
+
+REQUIRED_FIELDS = [
+    (category, i) for category, qs in assessment_questions.items() for i in range(len(qs))
+]
+
+
+def _ensure_dirs():
+    os.makedirs(DRAFT_DIR, exist_ok=True)
+
+
+def _draft_path(submitter):
+    safe_name = "".join(c for c in submitter if c.isalnum() or c in ("_", "-")).strip()
+    return os.path.join(DRAFT_DIR, f"{safe_name}_draft.json")
+
+
+def start_or_resume_assessment(submitter):
+    """Loads a saved draft for this submitter, or starts a new one."""
+    _ensure_dirs()
+    path = _draft_path(submitter)
+    if os.path.exists(path):
+        with open(path, "r") as f:
+            print(f"\nResuming saved draft for {submitter}.")
+            return json.load(f)
+    print(f"\nStarting new assessment for {submitter}.")
+    return {"submitter": submitter, "answers": {}}
+
+
+def save_draft(assessment):
+    """Saves a partially completed assessment so it can be resumed later."""
+    _ensure_dirs()
+    path = _draft_path(assessment["submitter"])
+    with open(path, "w") as f:
+        json.dump(assessment, f, indent=2)
+    print(f"\nProgress saved. You can resume this assessment any time as "
+          f"'{assessment['submitter']}'.")
+
+
+def run_questionnaire(assessment):
+    """Walks the user through each question, allowing save-and-exit at any point."""
+    answers = assessment["answers"]
+
+    for category, questions in assessment_questions.items():
+        print(f"\n--- {category} ---")
+        for i, question in enumerate(questions):
+            key = f"{category}::{i}"
+            existing = answers.get(key, "")
+            prompt = f"{question}\n"
+            if existing:
+                prompt += f"(Saved answer: {existing})\nPress Enter to keep, or type a new answer: "
+            else:
+                prompt += "Your answer (or type 'save' to save and exit): "
+
+            response = input(prompt).strip()
+
+            if response.lower() == "save":
+                save_draft(assessment)
+                return False  # not complete, exited early
+
+            if response:
+                answers[key] = response
+            elif not existing:
+                answers[key] = ""  # leave blank, required-field check catches this later
+
+    return True  # made it through every question
+
+
+def validate_complete(assessment):
+    """All required fields must be completed before submission is accepted."""
+    answers = assessment["answers"]
+    missing = []
+    for category, questions in assessment_questions.items():
+        for i, question in enumerate(questions):
+            key = f"{category}::{i}"
+            if not answers.get(key):
+                missing.append(f"{category}: {question}")
+    return missing
+
+
+def submit_assessment(assessment):
+    """Finalizes and stores a completed assessment in the shared repository."""
+    missing = validate_complete(assessment)
+    if missing:
+        print("\nSubmission rejected. The following required fields are incomplete:")
+        for m in missing:
+            print(f"  - {m}")
+        return None
+
+    record = {
+        "id": str(uuid.uuid4()),
+        "submitter": assessment["submitter"],
+        "timestamp": datetime.now().isoformat(timespec="seconds"),
+        "answers": assessment["answers"],
+        "flagged_for_followup": False,
+        "flag_note": "",
+    }
+
+    repository = _load_repository()
+    repository.append(record)
+    _save_repository(repository)
+
+    # Clear the draft now that it's been submitted.
+    draft_path = _draft_path(assessment["submitter"])
+    if os.path.exists(draft_path):
+        os.remove(draft_path)
+
+    print(f"\nSubmission successful. Assessment ID: {record['id']}")
+    print(f"Submitted by: {record['submitter']} at {record['timestamp']}")
+    return record
+
+
+def _load_repository():
+    if os.path.exists(REPOSITORY_FILE):
+        with open(REPOSITORY_FILE, "r") as f:
+            return json.load(f)
+    return []
+
+
+def _save_repository(repository):
+    with open(REPOSITORY_FILE, "w") as f:
+        json.dump(repository, f, indent=2)
+
+
+def display_summary(record):
+    """Data steward view: readable summary with timestamp and submitter identity."""
+    print(f"\n=== Assessment Summary ({record['id']}) ===")
+    print(f"Submitter: {record['submitter']}")
+    print(f"Submitted: {record['timestamp']}")
+    if record["flagged_for_followup"]:
+        print(f"FLAGGED FOR FOLLOW-UP: {record['flag_note']}")
+    for category, questions in assessment_questions.items():
+        print(f"\n{category}")
+        for i, question in enumerate(questions):
+            key = f"{category}::{i}"
+            print(f"  Q: {question}")
+            print(f"  A: {record['answers'].get(key, '')}")
+
+
+def flag_for_followup(record_id, note, authorized_role="data_steward"):
+    """Allows a data steward to flag a submission for clarification."""
+    if authorized_role not in ("data_steward", "compliance_officer"):
+        print("Access denied: only data stewards or compliance officers can flag submissions.")
+        return
+    repository = _load_repository()
+    for record in repository:
+        if record["id"] == record_id:
+            record["flagged_for_followup"] = True
+            record["flag_note"] = note
+            _save_repository(repository)
+            print(f"Assessment {record_id} flagged for follow-up.")
+            return
+    print("No assessment found with that ID.")
+
+
+def search_repository(submitter=None, date=None, keyword=None, authorized_role="compliance_officer"):
+    """Compliance officer view: searchable by submitter, date, or keyword.
+    Restricted to authorized compliance roles."""
+    if authorized_role not in ("compliance_officer",):
+        print("Access denied: repository search is restricted to compliance officers.")
+        return []
+
+    repository = _load_repository()
+    results = repository
+
+    if submitter:
+        results = [r for r in results if submitter.lower() in r["submitter"].lower()]
+    if date:
+        results = [r for r in results if r["timestamp"].startswith(date)]
+    if keyword:
+        results = [
+            r for r in results
+            if any(keyword.lower() in str(v).lower() for v in r["answers"].values())
+        ]
+
+    return results
+
+
+def main():
+    print("=== Healthcare Data Use Case Assessment ===")
+    submitter = input("Enter your name (submitter identity): ").strip()
+    assessment = start_or_resume_assessment(submitter)
+
+    completed = run_questionnaire(assessment)
+    if not completed:
+        return  # user saved and exited early
+
+    submit_assessment(assessment)
+
+
+if __name__ == "__main__":
+    main()
